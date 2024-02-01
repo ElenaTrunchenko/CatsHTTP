@@ -10,6 +10,7 @@ public class Cat {
     private final String upvotes; // голоса
 
     public Cat(
+            // мапинг значений межде значений java и значений в json (ссылки)
             @JsonProperty("id") String id,
             @JsonProperty("text") String text,
             @JsonProperty("type") String type,

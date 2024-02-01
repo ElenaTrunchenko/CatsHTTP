@@ -1,8 +1,10 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.example.Cat;
@@ -28,16 +30,22 @@ public class Main {
                         .setRedirectsEnabled(false)
                         .build())//метод build собрал конфиг
                 .build(); //создал объект клиента
+        // создание объекта запроса с произвольными заголовками
         HttpGet request = new HttpGet(REMOTE_SERVICE_URI);
+       // показываем что мы готовы получить ответ от сервера в формате json. устанавливаем заголовок (метод setHeder)
+        request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+        // отправка запроса
         CloseableHttpResponse response = httpClient.execute(request);
 
-        List<Cat> cats = mapper.readValue(
-                response.getEntity().getContent(),
-                new TypeReference<>() {
+        // чтение тела
+        List<Cat> cats = mapper.readValue( // метод readValue производит десериализацию
+                response.getEntity().getContent(), // входящие данные строка или поток. откуда читать
+                new TypeReference<>() { // какой тип читать
                 });
+        // выполняем действия над полученными данными
         cats.stream().filter(value -> value.getUpvotes() != null && Integer.parseInt(value.getUpvotes()) > 0)
                 .forEach(System.out::println);
-
+        // закрываем клиентов с ресурсами
         response.close();
         httpClient.close();
     }
